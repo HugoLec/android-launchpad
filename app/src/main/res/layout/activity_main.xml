@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.mwm.sample.launchpadusbsample.MainActivity">
+
+    <Button
+        android:id="@+id/main_activity_catch_controller_btn"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:text="Catch USB Device" />
+
+    <Button
+        android:id="@+id/main_activity_clear_log"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"
+        android:text="Reset" />
+
+    <Button
+        android:id="@+id/main_activity_send_data"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:text="Send Data" />
+
+    <Button
+        android:id="@+id/main_activity_receive_data"
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="50dp"
+        android:text="Receive Data" />
+
+    <TextView
+        android:id="@+id/main_activity_info_logging"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="100dp"
+        android:maxLines="30"
+        android:scrollbars="vertical"
+        android:textColor="@color/colorPrimary"/>
+
+</FrameLayout>
