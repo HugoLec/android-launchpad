@@ -29,9 +29,13 @@ public class LaunchPadConnection {
     private static final byte ID_PAD_TYPE_CONTROL_RIGHT = (byte) 144;
     private static final byte ID_PAD_TYPE_BUTTON = (byte) 144;
 
+    private static final byte RECEIVE_DATA_ID_TOUCH_DOWN = 127;
+    private static final byte RECEIVE_DATA_ID_TOUCH_UP = 0;
+
     private final LinkedBlockingQueue<byte[]> eventToSend;
 
     private final SendDataThread sendDataThread;
+    private final ReceiveDataThread receiveDataThread;
 
     private final UsbManager usbManager;
     private final UsbDevice usbDevice;
@@ -40,10 +44,13 @@ public class LaunchPadConnection {
     private final UsbEndpoint inEndpoint;
     private final UsbEndpoint outEndpoint;
 
+    private final List<OnReceiveLaunchPadListener> onReceiveLaunchPadListeners;
+
     LaunchPadConnection(UsbManager usbManager, UsbDevice usbDevice) {
         this.usbDevice = usbDevice;
         this.eventToSend = new LinkedBlockingQueue<>();
         this.usbManager = usbManager;
+        this.onReceiveLaunchPadListeners = new ArrayList<>();
 
         this.usbInterface = usbDevice.getInterface(0);
 
@@ -65,12 +72,16 @@ public class LaunchPadConnection {
 
         sendDataThread = new SendDataThread();
         sendDataThread.start();
+
+        receiveDataThread = new ReceiveDataThread();
+        receiveDataThread.start();
     }
 
 //    TODO ...............
 //    public void releaseConnection(){
 //        eventToSend.clear();
 //        sendDataThread.stopThread();
+//        receiveDataThread.stopThread();
 //    }
 
     public String getDeviceName() {
@@ -124,6 +135,26 @@ public class LaunchPadConnection {
         internalDisablePad(PadType.PAD, padMapId);
     }
 
+    public boolean registerOnReceiveLaunchPadEvents(OnReceiveLaunchPadListener listener){
+        synchronized (onReceiveLaunchPadListeners) {
+            if (listener == null || onReceiveLaunchPadListeners.contains(listener)) {
+                return false;
+            }
+
+            return onReceiveLaunchPadListeners.add(listener);
+        }
+    }
+
+    public boolean unregisterOnReceiveLaunchPadEvents(OnReceiveLaunchPadListener listener){
+        synchronized (onReceiveLaunchPadListeners) {
+            if (listener == null || !onReceiveLaunchPadListeners.contains(listener)) {
+                return false;
+            }
+
+            return onReceiveLaunchPadListeners.remove(listener);
+        }
+    }
+
     private void internalEnablePad(PadType type, byte padId, byte color) {
         final byte padTypeIdentifier = type.idPadIdentifier;
         byte[] data = {padTypeIdentifier, padId, color};
@@ -134,6 +165,30 @@ public class LaunchPadConnection {
         final byte padTypeIdentifier = type.idPadIdentifier;
         byte[] data = {padTypeIdentifier, padId, 0};
         eventToSend.offer(data);
+    }
+
+    private void notifyOnReveiceTopControlEvent(ControlTopPad controlTopPad, boolean isDownEvent){
+        synchronized (onReceiveLaunchPadListeners){
+            for (OnReceiveLaunchPadListener onReceiveLaunchPadListener : onReceiveLaunchPadListeners) {
+                onReceiveLaunchPadListener.OnReveiceTopControlEvent(controlTopPad, isDownEvent);
+            }
+        }
+    }
+
+    private void notifyOnReveiceMainPadEvent(int padId, boolean isDownEvent){
+        synchronized (onReceiveLaunchPadListeners){
+            for (OnReceiveLaunchPadListener onReceiveLaunchPadListener : onReceiveLaunchPadListeners) {
+                onReceiveLaunchPadListener.OnReveiceMainPadEvent(padId, isDownEvent);
+            }
+        }
+    }
+
+    private void notifyOnReveiceRightControlEvent(ControlRightPad controlRightPad, boolean isDownEvent){
+        synchronized (onReceiveLaunchPadListeners){
+            for (OnReceiveLaunchPadListener onReceiveLaunchPadListener : onReceiveLaunchPadListeners) {
+                onReceiveLaunchPadListener.OnReveiceRightControlEvent(controlRightPad, isDownEvent);
+            }
+        }
     }
 
     private class SendDataThread extends Thread {
@@ -155,18 +210,18 @@ public class LaunchPadConnection {
                 try {
                     Thread.sleep(REFRESH_INTERVAL);
                     if (isRunning) {
-                        if(!eventToSend.isEmpty()){
+                        if (!eventToSend.isEmpty()) {
                             List<byte[]> dataCollected = new ArrayList<>();
                             eventToSend.drainTo(dataCollected);
 
-                            Log.d("SendDataThread", "sended packed of nb elements : " +  dataCollected.size());
+                            Log.d("SendDataThread", "sended packed of nb elements : " + dataCollected.size());
                             for (byte[] bytes : dataCollected) {
 
                                 String val = "";
-                                for (int i = 0; i < bytes.length; i++){
+                                for (int i = 0; i < bytes.length; i++) {
                                     val += ((int) bytes[i] < 0 ? 256 + bytes[i] : bytes[i]) + " ";
                                 }
-                                Log.d("SendDataThread", "sended data : " +  val);
+                                Log.d("SendDataThread", "sended data : " + val);
 
                                 usbDeviceConnection.bulkTransfer(outEndpoint, bytes, bytes.length, 0);
                             }
@@ -187,6 +242,129 @@ public class LaunchPadConnection {
             isInterrupted = true;
             interrupt();
         }
+    }
+
+    private class ReceiveDataThread extends Thread {
+
+        /**
+         * The refresh interval in milliseconds.
+         */
+        private final long REFRESH_INTERVAL = 0;
+
+        private boolean isRunning;
+
+        private boolean isInterrupted;
+
+        private final byte[] recordIn;
+        private PadType currentReceivePadType;
+
+        private final ControlTopPad[] controlTopPadArray;
+        private final ControlRightPad[] controlRightPadArray;
+
+        private ReceiveDataThread() {
+            this.recordIn = new byte[inEndpoint.getMaxPacketSize()];
+
+            controlTopPadArray = ControlTopPad.values();
+            controlRightPadArray = ControlRightPad.values();
+        }
+
+
+        @Override
+        public void run() {
+            isRunning = true;
+            super.run();
+            while (!isInterrupted() && !isInterrupted) {
+                try {
+                    Thread.sleep(REFRESH_INTERVAL);
+                    if (isRunning) {
+
+                        final int receivedLength = usbDeviceConnection.bulkTransfer(inEndpoint, recordIn,
+                                recordIn.length, 0);
+
+                        for (int i = 0; i < receivedLength; ) {
+                            if (recordIn[i] == PadType.CONTROL_TOP.idPadIdentifier) {
+                                currentReceivePadType = PadType.CONTROL_TOP;
+                                i++;
+                            } else if (recordIn[i] == PadType.PAD.idPadIdentifier) {
+                                currentReceivePadType = PadType.PAD;
+                                i++;
+                            }
+
+                            if (currentReceivePadType == PadType.CONTROL_TOP) {
+                                for (ControlTopPad controlTopPad : controlTopPadArray) {
+                                    if (recordIn[i] == PAD_MAP[controlTopPad.padMapLine][controlTopPad.padMapColumn]) {
+                                        i++;
+                                        boolean isTouchDown = recordIn[i] == RECEIVE_DATA_ID_TOUCH_DOWN;
+                                        i++;
+                                        notifyOnReveiceTopControlEvent(controlTopPad, isTouchDown);
+                                        break;
+                                    }
+                                }
+                            } else {
+                                boolean hasSendEvent = false;
+                                for (ControlRightPad controlRightPad : controlRightPadArray) {
+                                    if (recordIn[i] == PAD_MAP[controlRightPad.padMapLine][controlRightPad.padMapColumn]) {
+                                        i++;
+                                        currentReceivePadType = PadType.CONTROL_RIGHT;
+                                        boolean isTouchDown = recordIn[i] == RECEIVE_DATA_ID_TOUCH_DOWN;
+                                        i++;
+                                        notifyOnReveiceRightControlEvent(controlRightPad, isTouchDown);
+                                        hasSendEvent = true;
+                                        break;
+                                    }
+                                }
+
+                                if(hasSendEvent) {
+                                    continue;
+                                }
+
+                                final int padMapLine = ((int) (recordIn[i] / 16f));
+                                final int padMapColumn = recordIn[i] % 16;
+                                if(padMapColumn > 7 || padMapLine > 7){
+                                    throw new IllegalStateException("This value of pad isn't possible to normalize : " + recordIn[i]);
+                                }
+
+                                final int padIdNormalized =  padMapLine * 8 + padMapColumn;
+                                i++;
+                                currentReceivePadType = PadType.PAD;
+                                boolean isTouchDown = recordIn[i] == RECEIVE_DATA_ID_TOUCH_DOWN;
+                                i++;
+                                notifyOnReveiceMainPadEvent(padIdNormalized, isTouchDown);
+                            }
+                        }
+
+                    }
+                } catch (InterruptedException e) {
+                    isInterrupted = true;
+                }
+            }
+        }
+
+        public void setIsRunning(boolean isRunning) {
+            this.isRunning = isRunning;
+        }
+
+        public void stopThread() {
+            setIsRunning(false);
+            isInterrupted = true;
+            interrupt();
+        }
+    }
+
+    private PadType identifyPadType(byte touchID) {
+        for (ControlTopPad controlTopPad : ControlTopPad.values()) {
+            if (PAD_MAP[controlTopPad.padMapLine][controlTopPad.padMapColumn] == touchID) {
+                return PadType.CONTROL_TOP;
+            }
+        }
+
+        for (ControlRightPad controlRightPad : ControlRightPad.values()) {
+            if (PAD_MAP[controlRightPad.padMapLine][controlRightPad.padMapColumn] == touchID) {
+                return PadType.CONTROL_RIGHT;
+            }
+        }
+
+        return PadType.PAD;
     }
 
     private enum PadType {
@@ -239,6 +417,12 @@ public class LaunchPadConnection {
             this.padMapColumn = padMapColumn;
             this.padMapLine = padMapLine;
         }
+    }
+
+    public interface OnReceiveLaunchPadListener{
+        void OnReveiceTopControlEvent(ControlTopPad controlTopPad, boolean isDown);
+        void OnReveiceRightControlEvent(ControlRightPad controlRightPad, boolean isDown);
+        void OnReveiceMainPadEvent(int padId, boolean isDown);
     }
 
 }
