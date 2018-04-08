@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 @SuppressLint("SetTextI18n")
-public class MainActivity2 extends AppCompatActivity implements View.OnClickListener, LaunchpadDriver.LaunchPadDriverObserver {
+public class MainActivity2 extends AppCompatActivity implements View.OnClickListener, LaunchpadDriver.LaunchPadDriverObserver, LaunchPadConnection.OnReceiveLaunchPadListener {
 
     private static final String TAG = "MainActivity2";
 
@@ -35,6 +35,8 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     private LaunchPadConnection launchPadConnection;
 
     private boolean pendingRequestConnection;
+
+    final Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +112,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         Log.d(TAG, "onConnectionSucceeded() called with: launchPadConnection = [" + launchPadConnection + "]");
         pendingRequestConnection = false;
         this.launchPadConnection = launchPadConnection;
+        this.launchPadConnection.registerOnReceiveLaunchPadEvents(this);
 
         deviceNameTxt.setText(launchPadConnection.getDeviceName());
         deviceStatusTxt.setText("Connection Succeded");
@@ -125,6 +128,42 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         deviceNameTxt.setText(deviceName);
         deviceStatusTxt.setText("Connection Failed...");
         refreshUIState();
+    }
+
+    @Override
+    public void OnReveiceTopControlEvent(LaunchPadConnection.ControlTopPad controlTopPad, boolean isDown) {
+        if(launchPadConnection == null){
+            return;
+        }
+
+        if(isDown)
+            launchPadConnection.enablePadTopControl(controlTopPad);
+        else
+            launchPadConnection.disablePadTopControl(controlTopPad);
+    }
+
+    @Override
+    public void OnReveiceRightControlEvent(LaunchPadConnection.ControlRightPad controlRightPad, boolean isDown) {
+        if(launchPadConnection == null){
+            return;
+        }
+
+        if(isDown)
+            launchPadConnection.enablePadRightControl(controlRightPad);
+        else
+            launchPadConnection.disablePadRightControl(controlRightPad);
+    }
+
+    @Override
+    public void OnReveiceMainPadEvent(int padId, boolean isDown) {
+        if(launchPadConnection == null){
+            return;
+        }
+
+        if(isDown)
+            launchPadConnection.enablePad(padId);
+        else
+            launchPadConnection.disablePad(padId);
     }
 
     private void clickOnConnectDevice(){
@@ -177,7 +216,6 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
 
         testDeviceBtn.setEnabled(false);
 
-        final Handler handler = new Handler();
         handler.post(new Runnable() {
             private final static int NB_ITERATION = 32;
 
