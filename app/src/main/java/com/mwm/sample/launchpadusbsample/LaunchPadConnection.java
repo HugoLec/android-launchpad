@@ -30,17 +30,14 @@ public class LaunchPadConnection {
     private static final byte ID_PAD_TYPE_BUTTON = (byte) 144;
 
     private static final byte RECEIVE_DATA_ID_TOUCH_DOWN = 127;
-    private static final byte RECEIVE_DATA_ID_TOUCH_UP = 0;
 
     private final LinkedBlockingQueue<byte[]> eventToSend;
 
     private final SendDataThread sendDataThread;
     private final ReceiveDataThread receiveDataThread;
 
-    private final UsbManager usbManager;
     private final UsbDevice usbDevice;
     private final UsbDeviceConnection usbDeviceConnection;
-    private final UsbInterface usbInterface;
     private final UsbEndpoint inEndpoint;
     private final UsbEndpoint outEndpoint;
 
@@ -49,10 +46,9 @@ public class LaunchPadConnection {
     LaunchPadConnection(UsbManager usbManager, UsbDevice usbDevice) {
         this.usbDevice = usbDevice;
         this.eventToSend = new LinkedBlockingQueue<>();
-        this.usbManager = usbManager;
         this.onReceiveLaunchPadListeners = new ArrayList<>();
 
-        this.usbInterface = usbDevice.getInterface(0);
+        UsbInterface usbInterface = usbDevice.getInterface(0);
 
         final UsbEndpoint endpoint0 = usbInterface.getEndpoint(0);
         final UsbEndpoint endpoint1 = usbInterface.getEndpoint(1);
@@ -349,22 +345,6 @@ public class LaunchPadConnection {
             isInterrupted = true;
             interrupt();
         }
-    }
-
-    private PadType identifyPadType(byte touchID) {
-        for (ControlTopPad controlTopPad : ControlTopPad.values()) {
-            if (PAD_MAP[controlTopPad.padMapLine][controlTopPad.padMapColumn] == touchID) {
-                return PadType.CONTROL_TOP;
-            }
-        }
-
-        for (ControlRightPad controlRightPad : ControlRightPad.values()) {
-            if (PAD_MAP[controlRightPad.padMapLine][controlRightPad.padMapColumn] == touchID) {
-                return PadType.CONTROL_RIGHT;
-            }
-        }
-
-        return PadType.PAD;
     }
 
     private enum PadType {
