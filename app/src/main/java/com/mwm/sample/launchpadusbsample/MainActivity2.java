@@ -69,11 +69,24 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
         launchpadDriver.addLaunchPadDriverObserver(this);
+
+        if(launchPadConnection != null){
+            launchPadConnection.enableSendDataProcess();
+            launchPadConnection.enableListenerDataProcess();
+            launchPadConnection.registerOnReceiveLaunchPadEvents(this);
+        }
     }
 
     @Override
     protected void onStop() {
         launchpadDriver.removeLaunchPadDriverObserver(this);
+
+        if(launchPadConnection != null){
+            this.launchPadConnection.unregisterOnReceiveLaunchPadEvents(this);
+            launchPadConnection.disableSendDataProcess();
+            launchPadConnection.disableListenerDataProcess();
+        }
+
         super.onStop();
     }
 
@@ -113,6 +126,8 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         pendingRequestConnection = false;
         this.launchPadConnection = launchPadConnection;
         this.launchPadConnection.registerOnReceiveLaunchPadEvents(this);
+        launchPadConnection.enableSendDataProcess();
+        launchPadConnection.enableListenerDataProcess();
 
         deviceNameTxt.setText(launchPadConnection.getDeviceName());
         deviceStatusTxt.setText("Connection Succeded");
@@ -131,7 +146,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void OnReveiceTopControlEvent(ControlTopPad controlTopPad, boolean isDown) {
+    public void OnReceiveTopControlEvent(ControlTopPad controlTopPad, boolean isDown) {
         if(launchPadConnection == null){
             return;
         }
@@ -143,7 +158,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void OnReveiceRightControlEvent(ControlRightPad controlRightPad, boolean isDown) {
+    public void OnReceiveRightControlEvent(ControlRightPad controlRightPad, boolean isDown) {
         if(launchPadConnection == null){
             return;
         }
@@ -155,7 +170,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void OnReveiceMainPadEvent(int padId, boolean isDown) {
+    public void OnReceiveMainPadEvent(int padId, boolean isDown) {
         if(launchPadConnection == null){
             return;
         }
