@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.launchpadusb;
 
 public enum ControlTopPad {
     ARROW_TOP(0, 0),

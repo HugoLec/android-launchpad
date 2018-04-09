@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.launchpadusb;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;

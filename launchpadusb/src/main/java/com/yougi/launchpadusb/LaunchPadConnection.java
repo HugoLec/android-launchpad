@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.launchpadusb;
 
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;

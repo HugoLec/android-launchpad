@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.launchpadusb;
 
 public enum ControlRightPad {
         VOL(1, 8),

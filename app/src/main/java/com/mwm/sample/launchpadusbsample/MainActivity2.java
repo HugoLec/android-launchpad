@@ -12,6 +12,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.yougi.launchpadusb.ControlRightPad;
+import com.yougi.launchpadusb.ControlTopPad;
+import com.yougi.launchpadusb.LaunchPadConnection;
+import com.yougi.launchpadusb.LaunchpadDriver;
+
 import java.util.HashMap;
 import java.util.Set;
 
