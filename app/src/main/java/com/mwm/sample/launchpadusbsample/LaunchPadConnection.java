@@ -379,46 +379,6 @@ public class LaunchPadConnection {
         }
     }
 
-    public enum ControlTopPad {
-        ARROW_TOP(0, 0),
-        ARROW_BOTTOM(0, 1),
-        ARROW_LEFT(0, 2),
-        ARROW_RIGHT(0, 3),
-        SESSION(0, 4),
-        USER_1(0, 5),
-        USER_2(0, 6),
-        MIXER(0, 7);
-
-        private final int padMapColumn;
-        private final int padMapLine;
-
-        ControlTopPad(int padMapLine, int padMapColumn) {
-            this.padMapColumn = padMapColumn;
-            this.padMapLine = padMapLine;
-        }
-
-    }
-
-    public enum ControlRightPad {
-        VOL(1, 8),
-        PAN(2, 8),
-        SND_A(3, 8),
-        SND_B(4, 8),
-        STOP(5, 8),
-        TRK_ON(6, 8),
-        SOLO(7, 8),
-        ARM(8, 8);
-
-
-        private final int padMapColumn;
-        private final int padMapLine;
-
-        ControlRightPad(int padMapLine, int padMapColumn) {
-            this.padMapColumn = padMapColumn;
-            this.padMapLine = padMapLine;
-        }
-    }
-
     public interface OnReceiveLaunchPadListener{
         void OnReveiceTopControlEvent(ControlTopPad controlTopPad, boolean isDown);
         void OnReveiceRightControlEvent(ControlRightPad controlRightPad, boolean isDown);

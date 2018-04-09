@@ -131,7 +131,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void OnReveiceTopControlEvent(LaunchPadConnection.ControlTopPad controlTopPad, boolean isDown) {
+    public void OnReveiceTopControlEvent(ControlTopPad controlTopPad, boolean isDown) {
         if(launchPadConnection == null){
             return;
         }
@@ -143,7 +143,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void OnReveiceRightControlEvent(LaunchPadConnection.ControlRightPad controlRightPad, boolean isDown) {
+    public void OnReveiceRightControlEvent(ControlRightPad controlRightPad, boolean isDown) {
         if(launchPadConnection == null){
             return;
         }
