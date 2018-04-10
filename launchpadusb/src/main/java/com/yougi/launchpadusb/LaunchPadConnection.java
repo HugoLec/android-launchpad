@@ -104,11 +104,11 @@ public class LaunchPadConnection {
                 usbDevice.getManufacturerName() + " - " + usbDevice.getProductName();
     }
 
-    public void enablePadTopControl(ControlTopPad controlTopPad) {
+    public void enablePadTopControl(ControlTopPad controlTopPad, PadColor.Red red, PadColor.Green green) {
         checkSendDataThreadRunning();
 
         byte padId = PAD_MAP[controlTopPad.padMapLine][controlTopPad.padMapColumn];
-        internalEnablePad(PadType.CONTROL_TOP, padId, (byte) 3);
+        internalEnablePad(PadType.CONTROL_TOP, padId, (byte) (red.colorId + green.colorId));
 
     }
 
@@ -119,11 +119,11 @@ public class LaunchPadConnection {
         internalDisablePad(PadType.CONTROL_TOP, padId);
     }
 
-    public void enablePadRightControl(ControlRightPad controlRightPad) {
+    public void enablePadRightControl(ControlRightPad controlRightPad, PadColor.Red red, PadColor.Green green) {
         checkSendDataThreadRunning();
 
         byte padId = PAD_MAP[controlRightPad.padMapLine][controlRightPad.padMapColumn];
-        internalEnablePad(PadType.CONTROL_RIGHT, padId, (byte) 3);
+        internalEnablePad(PadType.CONTROL_RIGHT, padId, (byte) (red.colorId + green.colorId));
     }
 
     public void disablePadRightControl(ControlRightPad controlRightPad) {
@@ -133,7 +133,7 @@ public class LaunchPadConnection {
         internalDisablePad(PadType.CONTROL_RIGHT, padId);
     }
 
-    public void enablePad(int padId) {
+    public void enablePad(int padId, PadColor.Red red, PadColor.Green green) {
         checkSendDataThreadRunning();
 
         if (padId < 0 || padId > 63) {
@@ -144,8 +144,8 @@ public class LaunchPadConnection {
         final int padMapColumn = padId % 8;
         final byte padMapId = PAD_MAP[padMapLine][padMapColumn];
 
-        //TODO Implement Color
-        internalEnablePad(PadType.PAD, padMapId, (byte) 48);
+        //TODO Implement PadColor
+        internalEnablePad(PadType.PAD, padMapId, (byte) (red.colorId + green.colorId));
     }
 
     public void disablePad(int padId) {

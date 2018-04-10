@@ -16,6 +16,7 @@ import com.yougi.launchpadusb.ControlRightPad;
 import com.yougi.launchpadusb.ControlTopPad;
 import com.yougi.launchpadusb.LaunchPadConnection;
 import com.yougi.launchpadusb.LaunchpadDriver;
+import com.yougi.launchpadusb.PadColor;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -157,7 +158,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         }
 
         if(isDown)
-            launchPadConnection.enablePadTopControl(controlTopPad);
+            launchPadConnection.enablePadTopControl(controlTopPad, PadColor.Red.DISABLE, PadColor.Green.POWER3);
         else
             launchPadConnection.disablePadTopControl(controlTopPad);
     }
@@ -169,7 +170,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         }
 
         if(isDown)
-            launchPadConnection.enablePadRightControl(controlRightPad);
+            launchPadConnection.enablePadRightControl(controlRightPad, PadColor.Red.DISABLE, PadColor.Green.POWER3);
         else
             launchPadConnection.disablePadRightControl(controlRightPad);
     }
@@ -181,7 +182,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         }
 
         if(isDown)
-            launchPadConnection.enablePad(padId);
+            launchPadConnection.enablePad(padId, PadColor.Red.DISABLE, PadColor.Green.POWER3);
         else
             launchPadConnection.disablePad(padId);
     }
@@ -252,7 +253,7 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
                     return;
                 }
 
-                launchPadConnection.enablePad(nbExecuted%8);
+                launchPadConnection.enablePad(nbExecuted%8, PadColor.Red.DISABLE, PadColor.Green.POWER3);
 
                 nbExecuted++;
                 //handler.post(this);
