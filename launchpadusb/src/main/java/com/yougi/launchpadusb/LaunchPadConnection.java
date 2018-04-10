@@ -232,7 +232,7 @@ public class LaunchPadConnection {
         /**
          * The refresh interval in milliseconds.
          */
-        private final long REFRESH_INTERVAL = 0;
+        private final long REFRESH_INTERVAL = 50;
 
         private boolean isRunning;
 
@@ -275,11 +275,11 @@ public class LaunchPadConnection {
             }
         }
 
-        public void setIsRunning(boolean isRunning) {
+        void setIsRunning(boolean isRunning) {
             this.isRunning = isRunning;
         }
 
-        public void stopThread() {
+        void stopThread() {
             setIsRunning(false);
             isInterrupted = true;
             interrupt();
@@ -387,11 +387,11 @@ public class LaunchPadConnection {
             }
         }
 
-        public void setIsRunning(boolean isRunning) {
+        void setIsRunning(boolean isRunning) {
             this.isRunning = isRunning;
         }
 
-        public void stopThread() {
+        void stopThread() {
             setIsRunning(false);
             isInterrupted = true;
             interrupt();
