@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mwm.sample.launchpadusbsample.MainActivity">
+    tools:context="com.yougi.sample.launchpadusb.MainActivity">
 
     <Button
         android:id="@+id/main_activity_catch_controller_btn"

@@ -16,7 +16,7 @@ public final class LaunchpadDriver {
 
     private static final String TAG = "LaunchpadDriver";
 
-    private static final String ACTION_USB_PERMISSION = "com.mwm.sample.launchpadusbsample.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.yougi.launchpadusb.USB_PERMISSION";
 
     private static LaunchpadDriver INSTANCE;
 

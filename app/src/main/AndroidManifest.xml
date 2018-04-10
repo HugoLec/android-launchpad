@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.mwm.sample.launchpadusbsample"
+<manifest package="com.yougi.sample.launchpadusb"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-feature android:name="android.hardware.usb.host" />
 
     <application
         android:allowBackup="true"

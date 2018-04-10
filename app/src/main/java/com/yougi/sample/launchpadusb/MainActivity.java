@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.sample.launchpadusb;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String ACTION_USB_PERMISSION = "com.mwm.sample.launchpadusbsample.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "USB_PERMISSION";
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {

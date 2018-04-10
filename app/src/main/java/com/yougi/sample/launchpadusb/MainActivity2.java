@@ -1,4 +1,4 @@
-package com.mwm.sample.launchpadusbsample;
+package com.yougi.sample.launchpadusb;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
