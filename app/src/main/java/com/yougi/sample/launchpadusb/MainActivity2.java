@@ -42,7 +42,9 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
 
     private boolean pendingRequestConnection;
 
-    final Handler handler = new Handler();
+    private final Handler handler = new Handler();
+
+    private TetrisGameManager tetrisGameManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +109,8 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
                 clickOnReleaseDevice();
                 break;
             case R.id.main_activity_send_data:
-                launchTestLaunchpadProcess();
+                //launchTestLaunchpadProcess();
+                launchTetrisGame();
                 break;
             default:
                 throw new IllegalStateException("This button isn't managed : " + id);
@@ -261,6 +264,20 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
             }
         });
 
+    }
+
+    private void launchTetrisGame(){
+        if(tetrisGameManager == null){
+            launchPadConnection.registerOnReceiveLaunchPadEvents(this);
+            tetrisGameManager = new TetrisGameManager(launchPadConnection);
+            tetrisGameManager.startGame();
+            testDeviceBtn.setText("Stop Game...");
+        } else {
+            launchPadConnection.unregisterOnReceiveLaunchPadEvents(this);
+            tetrisGameManager.stopGame();
+            tetrisGameManager = null;
+            testDeviceBtn.setText("Start Game...");
+        }
     }
 
     private void refreshUIState() {
